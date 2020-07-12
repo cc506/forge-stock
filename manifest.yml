@@ -1,0 +1,12 @@
+modules:
+  macro:
+    - key: stocks-hello-world
+      function: main
+      title: stocks
+      description: Inserts Hello world!
+  function:
+    - key: main
+      handler: index.run
+app:
+  id: 'ari:cloud:ecosystem::app/f5b5bdf8-c2f1-4be6-81e5-1b4b08878538'
+  name: stocks
