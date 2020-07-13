@@ -1,6 +1,10 @@
-# Forge Hello World (Typescript)
+<h1 align="center" style="font-weight:bold;font-size:32px;">Forge Stock Ticker</h1>
 
-This project contains a Forge app written in Typescript that displays `Hello World!` in a Confluence macro. 
+<div align="center">
+  <img src="./demo.gif" width="500" height="300" />
+  <p id="desc" style="font-style:italic;text-align:center;">This project contains a Forge app written in Typescript that displays stock information using the Yahoo! Finance API. 
+  </p>
+</div>
 
 See [developer.atlassian.com/platform/forge/](https://developer.atlassian.com/platform/forge) for documentation and tutorials explaining Forge.
 
