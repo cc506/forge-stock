@@ -1,53 +1,77 @@
-import ForgeUI, { Button, ConfigForm,
-                    Form, Fragment, 
-                    Macro, Option, 
-                    Select, Text, 
-                    TextArea, TextField, 
-                    render, useAction, 
-                    useConfig, useProductContext, 
-                    useState, UserPicker, 
-                    RadioGroup, Radio } from "@forge/ui";
+import ForgeUI, {
+    Button, Table, Row,
+    Form, Fragment,
+    Macro, Cell,
+    Image, Text,
+    SectionMessage, TextField,
+    render, useAction,
+    useConfig, useProductContext,
+    useState, UserPicker,
+    RadioGroup, Radio
+} from "@forge/ui";
 
 import api from "@forge/api";
-import React from 'react';
-import './index.css'
 
 const STATE = {
     INPUT: 0,
-    SUCCESS: 1
+    SUCCESS: 1,
+    FAIL: 2
 }
 
-interface Stock{
-    name: any,
-    ticker: any,
-    price: any,
-    c: any,
-    pc: any
+interface Stock {
+    quote: {
+        name: any,
+        ticker: any,
+        price: any,
+        c: any,
+        pc: any
+    },
+    assetProfile: {
+        address: any,
+        city: any, state: any, zip: any,
+        country: any,
+        phone: any,
+        website: any,
+
+        sector: any,
+        industry: any,
+        full_time: any,
+
+        summary: any
+    }
 }
 
-//const header = `h${this.props.priority}`;
+const colors = [
+    /* green:  */"#008000",
+    /* darkred:  */"#8b0000"
+]
 
 const App = () => {
-    const { accountId } = useProductContext();
-    const [ state, setState ] = useState(STATE.INPUT);
-    const [ error, setError ] = useState(null);
+    const [state, setState] = useState(STATE.INPUT);
+    const [error, setError] = useState(null);
+    const [isOpen, setIsOpen] = useState(false);
 
-    const [ name, setName ] = useState(null);
-    const [ tickerName, setTickerName ] = useState(null);
-    const [ currentValue, setCurrentValue ] = useState(null);
-    const [ diff, setDifference ] = useState(null);
-    const [ pc, setPercentChange ] = useState(null)
+    const [q, setQuote] = useState(null);
+    const [diff, setDifference] = useState(null);
+    const [pc, setPercentChange] = useState(null);
+    const [aProfile, setAssetProfile] = useState(null);
 
     switch (state) {
         case STATE.INPUT:
             return doInput();
         case STATE.SUCCESS:
             return doSuccess();
+        case STATE.FAIL:
+            return doFail();
     }
 
     function doInput() {
         return (
             <Fragment>
+                <Image src="https://s.yimg.com/rz/p/yahoo_finance_en-US_s_f_pw_351X40_finance_2x.png" alt="s" />
+                <Text>
+                    *Stock Tracker*
+                </Text>
                 <Text>
                     **Select a Stock**
                 </Text>
@@ -61,62 +85,151 @@ const App = () => {
     function doSuccess() {
         return (
             <Fragment>
-                <Text content = { name }/>
-                <Text content = {tickerName}/>
-                <Text content = {"$" + currentValue}/>
-                <Text content = { diff + " (" + pc + "%)"}/>
+                <Button
+                    text="⬅️ Back"
+                    onClick={() => {
+                        setState(STATE.INPUT);
+                    }}
+                />
+                <Text>
+                    **{q.name}**
+                </Text>
+                <Text>
+                    *{q.ticker}*
+                </Text>
+                <Text content={"$" + q.price} />
+                <Text content={diff + " (" + pc + ")"} />
+                <Button
+                    text="🗠 Toggle Asset Profile"
+                    onClick={() => {
+                        setIsOpen(!isOpen);
+                    }}
+                />
+                {
+                    isOpen &&
+                    <Table>
+                        <Row>
+                            <Cell>
+                                <Text>{aProfile.address}</Text>
+                            </Cell>
+                            <Cell>
+                                <Text>{"**Sector(s)**: " + aProfile.sector}</Text>
+                            </Cell>
+                        </Row>
+                        <Row>
+                            <Cell>
+                                <Text>{aProfile.city + ", " + aProfile.state + " " + aProfile.zip}</Text>
+                            </Cell>
+                            <Cell>
+                                <Text>{"**Industry**: " + aProfile.industry}</Text>
+                            </Cell>
+                        </Row>
+                        <Row>
+                            <Cell>
+                                <Text>{aProfile.country}</Text>
+                            </Cell>
+                            <Cell>
+                                <Text>{"**Full Time Employees**: " + aProfile.full_time}</Text>
+                            </Cell>
+                        </Row>
+                        <Row>
+                            <Cell>
+                                <Text>{aProfile.phone}</Text>
+                            </Cell>
+                            <Cell></Cell>
+                        </Row>
+                        <Row>
+                            <Cell>
+                                <Text>{aProfile.website}</Text>
+                            </Cell>
+                            <Cell></Cell>
+                        </Row>
+                        <Row>
+                            <Cell></Cell><Cell></Cell>
+                        </Row>
+                    </Table>
+                }
+                {isOpen && <Text>**Description**</Text>}
+                {isOpen && <Text>{aProfile.summary}</Text>}
+            </Fragment>
+        );
+    }
+
+    function doFail() {
+        return (
+            <Fragment>
+                <Button
+                    text="⬅️ Back"
+                    onClick={() => {
+                        setState(STATE.INPUT);
+                    }}
+                />
+                <SectionMessage title="Error" appearance="error">
+                    <Text>{error}</Text>
+                </SectionMessage>
             </Fragment>
         );
     }
 
     async function createIssue({ ticker }) {
-        // setCurrentValue(null);
-        // setDifference(null);
 
         const YAHOO_API_BASE = 'https://query2.finance.yahoo.com/v10/finance/quoteSummary/';
-        await await api.fetch(
+        const response = await await api.fetch(
             `${YAHOO_API_BASE}${ticker}?modules=price%2CassetProfile`,
-        ).then((response) => response.json()).then(res => {
+        )
+        const responseBody = await response.json();
 
-            let stock1: Stock = {
-                name: res['quoteSummary']['result'][0]['price']['shortName'],
-                ticker: ticker,
-                price: res['quoteSummary']['result'][0]['price']['regularMarketPrice']['fmt'],
-                c: res['quoteSummary']['result'][0]['price']['regularMarketChange']['fmt'],
-                pc: res['quoteSummary']['result'][0]['price']['regularMarketChangePercent']['fmt'],
-            }
-            console.log(stock1.name);
-            console.log(stock1.price);
-            // if(stock1.c.charAt(0) == '-' && stock1.pc.charAt(0) == '-'){
-            console.log(stock1.c);
-            console.log(stock1.pc);
-            // } else {
-            //     console.log("+" + stock1.c);
-            //     console.log("+" + stock1.pc);
-            // }    
-        
-            if (res['error'] !== 'null') {
-                console.error(res);
-                const errorMessage = res.error;      
-                setError(errorMessage || 'That\'s an invalid Ticker');
-            } else {
-                setError(res.error);
-                setName(stock1.name);
-                setTickerName(ticker);
-                setCurrentValue(stock1.price);
+        if (responseBody['quoteSummary']['error'] !== null) {
+            // console.error(responseBody);
+            const errorMessage = responseBody['quoteSummary']['error']['description'];
+            setError(errorMessage);
+            setState(STATE.FAIL);
 
-                if(stock1.c.charAt(0) == '-' && stock1.pc.charAt(0) == '-'){
-                    setDifference(stock1.c);
-                    setPercentChange(stock1.pc);
-                } else {
-                    setDifference("+" + stock1.c);
-                    setPercentChange("+" + stock1.pc);
+        } else {
+
+            const p = responseBody['quoteSummary']['result'][0]['price'];
+            const ap = responseBody['quoteSummary']['result'][0]['assetProfile'];
+
+            const stock1: Stock = {
+                quote: {
+                    name: p['longName'],
+                    ticker: p['symbol'],
+                    price: p['regularMarketPrice']['fmt'],
+                    c: p['regularMarketChange']['fmt'],
+                    pc: p['regularMarketChangePercent']['fmt']
+                },
+                assetProfile: {
+                    address: ap['address1'],
+                    city: ap['city'], state: ap['state'], zip: ap['zip'],
+                    country: ap['country'],
+                    phone: ap['phone'],
+                    website: ap['website'],
+
+                    sector: ap['sector'],
+                    industry: ap['industry'],
+                    full_time: ap['fullTimeEmployees'],
+                    summary: ap['longBusinessSummary']
+
                 }
-
-                setState(STATE.SUCCESS);
-                
             }
-        });
+            console.log(stock1.quote);
+
+            setError(responseBody.error);
+            setQuote(stock1.quote);
+            setAssetProfile(stock1.assetProfile);
+            console.log(stock1.assetProfile);
+
+            if (stock1.quote.c.charAt(0) == '-' && stock1.quote.pc.charAt(0) == '-') {
+                setDifference(stock1.quote.c);
+                setPercentChange(stock1.quote.pc);
+            } else {
+                setDifference("+" + stock1.quote.c);
+                setPercentChange("+" + stock1.quote.pc);
+            }
+
+            setState(STATE.SUCCESS);
+        }
+
     };
 };
 
