@@ -11,6 +11,7 @@ import ForgeUI, {
 } from "@forge/ui";
 
 import api from "@forge/api";
+import { EnhancedText } from "./enhancedText"
 
 const STATE = {
     INPUT: 0,
@@ -41,11 +42,6 @@ interface Stock {
     }
 }
 
-const colors = [
-    /* green:  */"#008000",
-    /* darkred:  */"#8b0000"
-]
-
 const App = () => {
     const [state, setState] = useState(STATE.INPUT);
     const [error, setError] = useState(null);
@@ -75,6 +71,7 @@ const App = () => {
                 <Text>
                     **Select a Stock**
                 </Text>
+                <EnhancedText height="20" color="red" text="Select a Stock"></EnhancedText>
                 <Form onSubmit={createIssue}>
                     <TextField label="Ticker" name="ticker" isRequired={true} />
                 </Form>
