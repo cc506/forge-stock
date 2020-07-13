@@ -68,10 +68,7 @@ const App = () => {
                 <Text>
                     *Stock Tracker*
                 </Text>
-                <Text>
-                    **Select a Stock**
-                </Text>
-                <EnhancedText height="20" color="red" text="Select a Stock"></EnhancedText>
+                <EnhancedText size="larger" weight="bold" text="Select a Stock"></EnhancedText>
                 <Form onSubmit={createIssue}>
                     <TextField label="Ticker" name="ticker" isRequired={true} />
                 </Form>
@@ -88,14 +85,9 @@ const App = () => {
                         setState(STATE.INPUT);
                     }}
                 />
-                <Text>
-                    **{q.name}**
-                </Text>
-                <Text>
-                    *{q.ticker}*
-                </Text>
-                <Text content={"$" + q.price} />
-                <Text content={diff + " (" + pc + ")"} />
+                <EnhancedText size="larger" weight="bold" text={q.name + " (" + q.ticker + ")"}></EnhancedText>
+                <EnhancedText size="medium" weight="" text={"$" + q.price}></EnhancedText>
+                <EnhancedText size="medium" weight="" text={diff + " (" + pc + ")"}></EnhancedText>
                 <Button
                     text="🗠 Toggle Asset Profile"
                     onClick={() => {
@@ -168,6 +160,16 @@ const App = () => {
         );
     }
 
+    function plus_minus(c, pc){
+        if (c.charAt(0) == '-' && pc.charAt(0) == '-') {
+            setDifference(c);
+            setPercentChange(pc);
+        } else {
+            setDifference("+" + c);
+            setPercentChange("+" + pc);
+        }
+    }
+
     async function createIssue({ ticker }) {
 
         const YAHOO_API_BASE = 'https://query2.finance.yahoo.com/v10/finance/quoteSummary/';
@@ -216,13 +218,7 @@ const App = () => {
             setAssetProfile(stock1.assetProfile);
             console.log(stock1.assetProfile);
 
-            if (stock1.quote.c.charAt(0) == '-' && stock1.quote.pc.charAt(0) == '-') {
-                setDifference(stock1.quote.c);
-                setPercentChange(stock1.quote.pc);
-            } else {
-                setDifference("+" + stock1.quote.c);
-                setPercentChange("+" + stock1.quote.pc);
-            }
+            plus_minus(stock1.quote.c, stock1.quote.pc)
 
             setState(STATE.SUCCESS);
         }
