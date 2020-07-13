@@ -12,6 +12,7 @@ import ForgeUI, {
 
 import api from "@forge/api";
 import { EnhancedText } from "./enhancedText"
+import { Graph } from "./graph";
 
 const STATE = {
     INPUT: 0,
@@ -75,6 +76,7 @@ const App = () => {
             </Fragment>
         );
     }
+
 
     function doSuccess() {
         return (
@@ -224,6 +226,14 @@ const App = () => {
         }
 
     };
+
+    async function createGraph({ticker}){
+        const YAHOO_API_BASE = 'https://query2.finance.yahoo.com/v8/finance/chart/';
+        const response = await await api.fetch(
+            `${YAHOO_API_BASE}${ticker}?range=max&interval=1d&indicators=quote`,
+        )
+        const responseBody = await response.json();
+    }
 };
 
 export const run = render(<Macro app={<App />} />);

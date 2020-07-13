@@ -8,7 +8,7 @@ const colors = [
 
 const getSvg = (size, weight, text) => (`
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
-  version="1.1" id="Layer_1" x="0" y="0" xml:space="preserve" width="700px" height="20px">
+  version="1.1" id="Layer_1" x="0" y="0" xml:space="preserve" width="800px" height="20px">
   <text x="0" y="15" fill="${getColors(text)}" font-size="${size}" font-weight="${weight}" font-family="sans-serif">${text}</text>
 </svg>
 `)
